@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc nghiệm Phong cách Giao dịch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Màu nền xám nhạt */
+            display: flex; /* Sử dụng flex để căn giữa */
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            min-height: 100vh; /* Chiều cao tối thiểu bằng chiều cao màn hình */
+            margin: 0; /* Bỏ margin mặc định của body */
+            padding: 1rem; /* Thêm padding nhỏ xung quanh */
+            box-sizing: border-box; /* Đảm bảo padding không làm tăng kích thước tổng thể */
+        }
+        .quiz-container {
+            max-width: 600px;
+            width: 100%; /* Chiếm toàn bộ chiều rộng nếu màn hình nhỏ */
+            margin: 0 auto; /* Căn giữa nếu không dùng flex trên body */
+            padding: 2rem;
+            background-color: white;
+            border-radius: 12px; /* Bo góc lớn hơn */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .question-title {
+            font-size: 1.25rem; /* 20px */
+            font-weight: 600;
+            margin-bottom: 1.5rem; /* 24px */
+            color: #1f2937; /* Màu chữ xám đậm hơn */
+        }
+        .option-button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem; /* 12px 16px */
+            margin-bottom: 0.75rem; /* 12px */
+            border: 1px solid #d1d5db; /* Viền xám */
+            border-radius: 8px; /* Bo góc cho nút */
+            background-color: #ffffff; /* Nền trắng */
+            color: #374151; /* Màu chữ xám vừa */
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            cursor: pointer; /* Thêm con trỏ chuột */
+        }
+        .option-button:hover {
+            background-color: #f9fafb; /* Xám nhạt hơn khi hover */
+            border-color: #9ca3af; /* Viền xám đậm hơn khi hover */
+        }
+        .option-button.selected {
+            background-color: #3b82f6; /* Màu xanh dương cho lựa chọn */
+            color: white;
+            border-color: #3b82f6;
+        }
+        .nav-button {
+            padding: 0.625rem 1.25rem; /* 10px 20px */
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result-card {
+            background-color: #eef2ff; /* Nền màu chàm nhạt */
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            border: 1px solid #c7d2fe; /* Viền màu chàm */
+        }
+        .result-title {
+            font-size: 1.5rem; /* 24px */
+            font-weight: 700;
+            color: #3730a3; /* Chữ màu chàm đậm */
+            margin-bottom: 0.75rem;
+        }
+        .result-text {
+            font-size: 1rem; /* 16px */
+            color: #4338ca; /* Chữ màu chàm */
+            margin-bottom: 0.5rem;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e5e7eb; /* Nền xám nhạt cho thanh tiến trình */
+            border-radius: 9999px; /* Bo tròn hoàn toàn */
+            height: 10px; /* Thanh tiến trình mỏng hơn */
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #3b82f6; /* Màu xanh dương cho tiến trình */
+            border-radius: 9999px;
+            transition: width 0.3s ease-in-out;
+        }
+        /* CSS để ẩn radio button nhưng vẫn giữ chức năng */
+        .hidden-radio {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        /* Thông báo lỗi */
+        .error-message-box {
+            position: fixed;
+            top: 20px; /* Cách top 20px */
+            left: 50%; /* Căn giữa theo chiều ngang */
+            transform: translateX(-50%); /* Điều chỉnh để thực sự ở giữa */
+            background-color: #ef4444; /* Màu đỏ */
+            color: white;
+            padding: 0.75rem 1.25rem; /* 12px 20px */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000; /* Đảm bảo hiển thị trên cùng */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .error-message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1 class="text-3xl font-bold text-center mb-8 text-indigo-700">TEST: PHONG CÁCH ĐẦU TƯ PHÙ HỢP CỦA BẠN LÀ GÌ?</h1>
+
+        <div id="quiz-area">
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
+            </div>
+            <div id="question-container">
+                </div>
+            <div class="mt-8 flex justify-between items-center">
+                <button id="prev-button" onclick="prevQuestion()" class="nav-button bg-gray-300 hover:bg-gray-400 text-gray-800" disabled>Câu trước</button>
+                <span id="question-counter" class="text-sm text-gray-600"></span>
+                <button id="next-button" onclick="nextQuestion()" class="nav-button bg-blue-500 hover:bg-blue-600 text-white">Câu tiếp</button>
+            </div>
+        </div>
+
+        <div id="result-area" class="hidden">
+            </div>
+    </div>
+
+    <div id="error-message" class="error-message-box">Vui lòng chọn một đáp án!</div>
+
+    <script>
+        // --- Dữ liệu Trắc nghiệm ---
+        const questions = [
+            {
+                question: "⏰ Bạn có thể theo dõi thị trường trong giờ hành chính?",
+                options: {
+                    A: "Luôn theo được trong phiên",
+                    B: "Theo dõi được trong giờ nghỉ trưa hoặc sau giờ làm",
+                    C: "Hầu như không có thời gian"
+                }
+            },
+            {
+                question: "📈 Khi cổ phiếu bạn nắm giữ giảm 5–7%, bạn sẽ…",
+                options: {
+                    A: "Cắt ngay, tôi không thích thua sâu",
+                    B: "Cân nhắc nếu chưa gãy trend",
+                    C: "Vẫn giữ nếu cơ bản tốt"
+                }
+            },
+            {
+                question: "💡 Bạn thích quyết định đầu tư dựa trên:",
+                options: {
+                    A: "Biểu đồ kỹ thuật & vùng giá",
+                    B: "Vùng giá + kết hợp tin tức ngành và doanh nghiệp",
+                    C: "Doanh nghiệp bền vững và định giá theo giá trị tài sản, P/E, ROE"
+                }
+            },
+            {
+                question: "⚡ Phản ứng của bạn khi cổ phiếu tăng 10% chỉ trong vài ngày?",
+                options: {
+                    A: "Bán ngay hoặc chốt lời một phần",
+                    B: "Quan sát kỹ, sẵn sàng giữ thêm nếu trend còn",
+                    C: "Tôi không quan tâm lắm, còn xa giá mục tiêu của tôi"
+                }
+            },
+            {
+                question: "🧩 Bạn thấy phù hợp với chiến lược nào?",
+                options: {
+                    A: "Lướt sóng nhanh, ăn ngắn 3% -5%, chốt lời đều",
+                    B: "Mua cổ phiếu khỏe, đợi sóng lớn ăn 20% -30%",
+                    C: "Có thể nắm dài theo giá trị doanh nghiệp, kỳ vọng tăng giá 30% -50%"
+                }
+            }
+        ];
+
+        const results = {
+            A: {
+                style: "Swing ngắn hạn 2 ngày – 2 tuần",
+                system: "Breakout nhanh các mẫu hình hợp lý + Pullback hỗ trợ EMA10/21"
+            },
+            B: {
+                style: "Giao dịch theo xu hướng trung hạn 2 tuần – 3 tháng",
+                system: "Mua breakout nền tích lũy dài, bám theo ngành khỏe, cổ phiếu khỏe"
+            },
+            C: {
+                style: "Đầu tư cơ bản dài hạn",
+                system: "Mua tích sản trong giai đoạn tích lũy, định giá hợp lý"
+            }
+        };
+
+        // --- Biến Trạng thái ---
+        let currentQuestionIndex = 0;
+        const userAnswers = new Array(questions.length).fill(null); // Lưu trữ câu trả lời của người dùng
+
+        // --- Phần tử DOM ---
+        const questionContainer = document.getElementById('question-container');
+        const resultArea = document.getElementById('result-area');
+        const quizArea = document.getElementById('quiz-area');
+        const nextButton = document.getElementById('next-button');
+        const prevButton = document.getElementById('prev-button');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const errorMessageDiv = document.getElementById('error-message');
+
+        // --- Hàm ---
+
+        /**
+         * Hiển thị thông báo lỗi.
+         * @param {string} message - Nội dung thông báo.
+         */
+        function showErrorMessage(message) {
+            errorMessageDiv.textContent = message;
+            errorMessageDiv.classList.add('show');
+            setTimeout(() => {
+                errorMessageDiv.classList.remove('show');
+            }, 3000); // Ẩn thông báo sau 3 giây
+        }
+
+        /**
+         * Tải và hiển thị câu hỏi hiện tại.
+         */
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            questionContainer.innerHTML = ''; // Xóa câu hỏi trước đó
+
+            const questionTitle = document.createElement('h2');
+            questionTitle.className = 'question-title';
+            questionTitle.textContent = `Câu ${currentQuestionIndex + 1}: ${currentQuestion.question}`;
+            questionContainer.appendChild(questionTitle);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options-container';
+
+            for (const key in currentQuestion.options) {
+                const label = document.createElement('label');
+                label.className = 'option-button';
+                if (userAnswers[currentQuestionIndex] === key) {
+                    label.classList.add('selected');
+                }
+
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `question-${currentQuestionIndex}`;
+                radio.value = key;
+                radio.className = 'hidden-radio'; // Ẩn radio button thực tế
+                radio.checked = userAnswers[currentQuestionIndex] === key;
+
+                label.onclick = () => {
+                    selectOption(key, label);
+                };
+
+                label.appendChild(radio); 
+                label.appendChild(document.createTextNode(`${key}. ${currentQuestion.options[key]}`));
+                optionsDiv.appendChild(label);
+            }
+            questionContainer.appendChild(optionsDiv);
+            updateNavigationButtons();
+            updateProgressBar();
+            updateQuestionCounter();
+        }
+
+        /**
+         * Xử lý việc chọn đáp án.
+         * @param {string} optionKey - Khóa của đáp án được chọn (A, B, C).
+         * @param {HTMLElement} selectedLabel - Phần tử label của đáp án được chọn.
+         */
+        function selectOption(optionKey, selectedLabel) {
+            userAnswers[currentQuestionIndex] = optionKey;
+            const optionButtons = questionContainer.querySelectorAll('.option-button');
+            optionButtons.forEach(button => button.classList.remove('selected'));
+            selectedLabel.classList.add('selected');
+            updateNavigationButtons(); 
+        }
+
+        /**
+         * Chuyển đến câu hỏi tiếp theo hoặc hiển thị kết quả nếu là câu hỏi cuối cùng.
+         */
+        function nextQuestion() {
+            if (userAnswers[currentQuestionIndex] === null) {
+                showErrorMessage('Vui lòng chọn một đáp án trước khi tiếp tục.');
+                return;
+            }
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        /**
+         * Chuyển đến câu hỏi trước đó.
+         */
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+            updateNavigationButtons();
+        }
+
+        /**
+         * Cập nhật trạng thái (kích hoạt/vô hiệu hóa) của các nút điều hướng.
+         */
+        function updateNavigationButtons() {
+            prevButton.disabled = currentQuestionIndex === 0;
+
+            if (currentQuestionIndex === questions.length - 1) {
+                nextButton.textContent = 'Xem Kết quả';
+                nextButton.disabled = userAnswers[currentQuestionIndex] === null;
+            } else {
+                nextButton.textContent = 'Câu tiếp';
+                nextButton.disabled = false; 
+            }
+        }
+
+         /**
+         * Cập nhật thanh tiến trình.
+         */
+        function updateProgressBar() {
+            const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        /**
+         * Cập nhật văn bản bộ đếm câu hỏi.
+         */
+        function updateQuestionCounter() {
+            questionCounter.textContent = `Câu ${currentQuestionIndex + 1} / ${questions.length}`;
+        }
+
+
+        /**
+         * Tính toán và hiển thị kết quả trắc nghiệm.
+         */
+        function showResults() {
+            const counts = { A: 0, B: 0, C: 0 }; // Chỉ đếm A, B, C
+            userAnswers.forEach(answer => {
+                if (answer && counts.hasOwnProperty(answer)) counts[answer]++;
+            });
+
+            let maxCount = 0;
+            let predominantlySelected = [];
+            for (const option in counts) {
+                if (counts[option] > maxCount) {
+                    maxCount = counts[option];
+                    predominantlySelected = [option];
+                } else if (counts[option] === maxCount && maxCount > 0) { 
+                    predominantlySelected.push(option);
+                }
+            }
+
+            quizArea.classList.add('hidden'); 
+            resultArea.classList.remove('hidden'); 
+            resultArea.innerHTML = ''; 
+
+            const resultTitle = document.createElement('h2');
+            resultTitle.className = 'result-title text-center';
+
+
+            if (predominantlySelected.length === 0 || maxCount === 0) { // maxCount === 0 để xử lý trường hợp không có câu trả lời nào hợp lệ
+                 resultTitle.textContent = '🎯 Kết quả Trắc nghiệm 🎯';
+                 const noAnswerText = document.createElement('p');
+                 noAnswerText.className = 'result-text text-center';
+                 noAnswerText.textContent = 'Bạn chưa trả lời câu hỏi nào hoặc không có đủ dữ liệu. Vui lòng làm lại bài trắc nghiệm.';
+                 resultArea.appendChild(resultTitle);
+                 resultArea.appendChild(noAnswerText);
+            } else if (predominantlySelected.length > 1) {
+                resultTitle.textContent = '🎯 Phong cách Giao dịch của bạn là sự kết hợp! 🎯';
+                resultArea.appendChild(resultTitle);
+
+                const tieIntro = document.createElement('p');
+                tieIntro.className = 'result-text mb-4 text-center';
+                tieIntro.textContent = 'Bạn có vẻ phù hợp với nhiều phong cách. Dưới đây là các phong cách nổi bật:';
+                resultArea.appendChild(tieIntro);
+
+                predominantlySelected.forEach(optionKey => {
+                    const styleInfo = results[optionKey];
+                    if (styleInfo) { // Kiểm tra xem styleInfo có tồn tại không
+                        const resultCard = document.createElement('div');
+                        resultCard.className = 'result-card mb-4'; 
+
+                        const styleElement = document.createElement('p');
+                        styleElement.className = 'result-text font-semibold';
+                        styleElement.innerHTML = `<strong>Phong cách:</strong> ${styleInfo.style}`;
+                        resultCard.appendChild(styleElement);
+
+                        const systemElement = document.createElement('p');
+                        systemElement.className = 'result-text';
+                        systemElement.innerHTML = `<strong>Hệ thống gợi ý:</strong> ${styleInfo.system}`;
+                        resultCard.appendChild(systemElement);
+                        resultArea.appendChild(resultCard);
+                    }
+                });
+            } else {
+                const finalStyleKey = predominantlySelected[0];
+                const finalResult = results[finalStyleKey];
+
+                if (finalResult) { // Kiểm tra xem finalResult có tồn tại không
+                    resultTitle.textContent = `🎯 Phong cách Giao dịch của bạn: ${finalResult.style} 🎯`;
+                    resultArea.appendChild(resultTitle);
+
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'result-card';
+
+                    const styleElement = document.createElement('p');
+                    styleElement.className = 'result-text text-lg'; 
+                    styleElement.innerHTML = `Dựa trên các câu trả lời, phong cách giao dịch phù hợp nhất với bạn là <strong>${finalResult.style}</strong>.`;
+                    resultCard.appendChild(styleElement);
+
+                    const systemTitle = document.createElement('p');
+                    systemTitle.className = 'result-text mt-4 font-semibold';
+                    systemTitle.textContent = 'Hệ thống gợi ý:';
+                    resultCard.appendChild(systemTitle);
+
+                    const systemElement = document.createElement('p');
+                    systemElement.className = 'result-text';
+                    systemElement.textContent = finalResult.system;
+                    resultCard.appendChild(systemElement);
+                    resultArea.appendChild(resultCard);
+                } else {
+                     resultTitle.textContent = '🎯 Kết quả Trắc nghiệm 🎯';
+                     const errorText = document.createElement('p');
+                     errorText.className = 'result-text text-center';
+                     errorText.textContent = 'Đã có lỗi xảy ra khi xác định kết quả. Vui lòng thử lại.';
+                     resultArea.appendChild(resultTitle);
+                     resultArea.appendChild(errorText);
+                }
+            }
+
+            const restartButton = document.createElement('button');
+            restartButton.textContent = 'Làm lại trắc nghiệm';
+            restartButton.className = 'nav-button bg-green-500 hover:bg-green-600 text-white mt-8 mx-auto block';
+            restartButton.onclick = () => {
+                currentQuestionIndex = 0;
+                userAnswers.fill(null);
+                resultArea.classList.add('hidden');
+                quizArea.classList.remove('hidden');
+                nextButton.textContent = 'Câu tiếp';
+                nextButton.disabled = false; 
+                loadQuestion();
+            };
+            resultArea.appendChild(restartButton);
+        }
+
+        // --- Tải ban đầu ---
+        window.onload = () => {
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>
